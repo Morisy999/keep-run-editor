@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KEEPro · 运动记录编辑器</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="body">
+<main>
+    <section class="preview" aria-label="运动详情截图预览">
+        <canvas id="new-Img" width="1260" height="2736" role="img" aria-label="运动记录"></canvas>
+        <div hidden><img id="portrait" alt=""><img id="bg-img" alt=""></div>
+    </section>
+    <section class="editor">
+        <header><h1>运动记录编辑器</h1><button class="primary" onclick="Download(Download1)">下载 PNG</button></header>
+        <div class="toolbar"><button onclick="Download(Download2)">查看大图</button><button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)">保存偏好</button><button onclick="clearIndexedDB()">清除偏好</button></div>
+        <p id="messageBox" role="status"></p>
+        <h2>个人资料</h2>
+        <div class="fields"><label>用户名<input id="inpt_username" oninput="setData()"></label>
+<label>运动名称<input id="inpt_keep_title" oninput="setData()"></label></div>
+        <div class="fields"><label>头像<input type="file" accept="image/*" id="inpt_portrait" onchange="portrait_inpt()"></label><button onclick="init_portrait()">清除</button></div>
+        <h2>运动数据</h2>
+        <div class="fields"><label>距离（公里）<input id="inpt_miles" inputmode="decimal" onchange="setData()"></label>
+<label>平均配速（分.秒）<input id="inpt_speeds" inputmode="decimal" onchange="setData()"></label></div>
+        <div class="fields" oninput="render()">
+            <label>训练时长<input id="record-duration" placeholder="自动计算，时:分:秒"></label>
+            <label>总时长<input id="record-elapsed" placeholder="同训练时长"></label>
+            <label>消耗（千卡）<input id="record-kcal" type="number" min="0" placeholder="自动估算"></label>
+            <label>运动负荷<input id="record-load" placeholder="—"></label>
+            <label>爬升（米）<input id="record-climb" placeholder="—"></label>
+        </div>
+        <div class="pb-settings">
+            <label><input type="checkbox" id="show-pb" checked onchange="render()"> 显示 PB 徽章</label>
+            <div class="fields"><label>最快配速<input id="record-best" value="04'49&quot;" placeholder="留空隐藏 PB" oninput="render()"></label></div>
+        </div>
+        <h2>时间与天气</h2>
+        <div class="fields"><label>左上角状态栏时间<input type="time" id="record-status-time" value="23:34" oninput="render()"></label></div>
+        <div class="fields"><label>年<input id="inpt_year" inputmode="decimal" onchange="setData()"></label>
+<label>月<input id="inpt_month" inputmode="decimal" onchange="setData()"></label>
+<label>日<input id="inpt_day" inputmode="decimal" onchange="setData()"></label>
+<label>时<input id="inpt_hour" inputmode="decimal" onchange="setData()"></label>
+<label>分<input id="inpt_min" inputmode="decimal" onchange="setData()"></label></div>
+        <div class="fields"><label>城市<input id="record-city" placeholder="填写城市" oninput="render()"></label>
+<label>天气<select id="weather_Select" class="" onchange="weather_Select_onChange()"><option value="images/weather1.png">晴</option><option value="images/weather2.png">多云</option><option value="images/weather3.png">阴天</option></select></label>
+<label>温度（°C）<input id="inpt_temperature" inputmode="decimal" onchange="setData()"></label>
+<label>湿度（%）<input id="inpt_humidity" inputmode="decimal" onchange="setData()"></label></div>
+        <h2>地图与轨迹</h2>
+        <div class="fields"><label>自定义地图<input type="file" accept="image/*" id="inpt_bgimg" onchange="bgimg_inpt()"></label><button onclick="init_bgimg()">清除</button></div>
+        <div class="toolbar"><button onclick="inpt_drawbtn_onClick()">手绘轨迹</button></div>
+        <details><summary>高级设置</summary>
+            <h3>随机范围</h3><div class="fields"><label>最短距离<input id="min_miles" inputmode="decimal" onchange="set_km_and_speed()"></label>
+<label>最长距离<input id="max_miles" inputmode="decimal" onchange="set_km_and_speed()"></label>
+<label>最快配速<input id="min_speeds" inputmode="decimal" onchange="set_km_and_speed()"></label>
+<label>最慢配速<input id="max_speeds" inputmode="decimal" onchange="set_km_and_speed()"></label></div>
+            <div class="checks">
+            <label><input type="checkbox" id="inpt_colorchange_checkbox" checked onchange="inpt_colorchange_checkbox_onchange()">轨迹变色</label></div>
+            <div id="bs_prop_inpt_wrap"><div class="fields"><label>变色概率<input id="inpt_bs_prob" inputmode="decimal" onchange="setData()"></label></div></div>
+            <div id="inpt_bs_range_wrap"><div class="fields"><label>最小步长<input id="inpt_bs_range_min" inputmode="decimal" onchange="setData()"></label>
+<label>最大步长<input id="inpt_bs_range_max" inputmode="decimal" onchange="setData()"></label></div></div>
+            <h3>天气服务</h3><div class="fields"><label>高德 API Key<input id="inpt_amap_key" type="password" onchange="setData()"></label>
+<button onclick="updateWeatherFromAPI()">更新哈尔滨天气</button></div>
+            <h3>图片导出</h3><div class="fields"><label>宽度（像素）<input id="inpt_savePic_width" type="number" min="120" max="4096" onchange="setData()"></label>
+<button onclick="Download(Download3)">备用下载</button>
+<button onclick="Download(Download4)">打开图片</button></div>
+        </details>
+        <footer>KEEPro · <a href="https://gitee.com/joytion/keep/" target="_blank" rel="noopener">原项目</a></footer>
+    </section>
+</main>
+<div id="drawpic_overlay"><div class="drawpic_popup"><h2>绘制轨迹</h2><div id="drawpic_canvas_wrap2"><div id="drawpic_canvas_wrap"><canvas id="drawpic_canvas"></canvas></div></div>
+    <div class="toolbar"><button onclick="drawpic_hidebtn_onClick()">取消</button><button onclick="drawpic_initbtn_onClick()">重画</button><button class="primary" onclick="drawpic_yesbtn_onClick()">使用轨迹</button></div>
+</div></div>
+<script src="js/template-assets.js"></script>
+<script src="js/invoke/amapHelper.js"></script>
+<script src="js/indexedDB.js"></script>
+<script src="js/init.js"></script>
+<script src="js/render.js"></script>
+<script src="js/select_manner.js"></script>
+<script src="js/img_both_inpt_set.js"></script>
+<script src="js/draw_personalization.js"></script>
+<script src="js/download_img.js"></script>
+<script src="js/onload.js"></script>
+</body>
+</html>
